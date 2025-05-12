@@ -1,15 +1,27 @@
 const webpackConfig = require('@nextcloud/webpack-vue-config')
-const webpackRules = require('@nextcloud/webpack-vue-config/rules')
+const ESLintPlugin = require('eslint-webpack-plugin')
+const StyleLintPlugin = require('stylelint-webpack-plugin')
+const path = require('path')
 
-// Custom rule for SVGs
-webpackRules.RULE_SVGS = {
-	test: /\.svg$/,
-	type: 'asset/source'
+webpackConfig.entry = {
+	main: { import: path.join(__dirname, 'src', 'main.js'), filename: 'main.js' },
 }
 
-// Remove SVG from the assets rule
-webpackRules.RULE_ASSETS.test = /\.(png|jpe?g|gif|woff2?|eot|ttf)$/
+webpackConfig.plugins.push(
+	new ESLintPlugin({
+		extensions: ['js', 'vue'],
+		files: 'src',
+	}),
+)
+webpackConfig.plugins.push(
+	new StyleLintPlugin({
+		files: 'src/**/*.{css,scss,vue}',
+	}),
+)
 
-webpackConfig.module.rules = Object.values(webpackRules)
+webpackConfig.module.rules.push({
+	test: /\.svg$/i,
+	type: 'asset/source',
+})
 
 module.exports = webpackConfig
